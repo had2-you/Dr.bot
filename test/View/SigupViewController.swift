@@ -1,5 +1,7 @@
-
+import FirebaseAuth
 import UIKit
+
+
 
 final class SignupViewController: UIViewController {
     
@@ -96,7 +98,7 @@ final class SignupViewController: UIViewController {
     
     
     // MARK: - 가입하기 버튼
-    private let loginButton: UIButton = {
+    private let signupButton: UIButton = {
         let button = UIButton(type: .custom)
         button.backgroundColor = .clear
         button.layer.cornerRadius = 5
@@ -107,13 +109,13 @@ final class SignupViewController: UIViewController {
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.isEnabled = true
-        button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(signupButtonTapped), for: .touchUpInside)
         return button
     }()
     
     
     lazy var stackView: UIStackView = {
-        let st = UIStackView(arrangedSubviews: [emailTextFieldView, passwordTextFieldView, loginButton])
+        let st = UIStackView(arrangedSubviews: [emailTextFieldView, passwordTextFieldView, signupButton])
         st.spacing = 18
         st.axis = .vertical
         st.distribution = .fillEqually
@@ -225,22 +227,35 @@ final class SignupViewController: UIViewController {
             let email = emailTextField.text, !email.isEmpty,
             let password = passwordTextField.text, !password.isEmpty
         else {
-            loginButton.backgroundColor = .clear
-            loginButton.isEnabled = false // 활성화 시키는 버튼
+            signupButton.backgroundColor = .clear
+            signupButton.isEnabled = false // 활성화 시키는 버튼
             return
         }
-        loginButton.backgroundColor = .black
-        loginButton.setTitleColor(.white, for: .normal)
-        loginButton.isEnabled = true
+        signupButton.backgroundColor = .black
+        signupButton.setTitleColor(.white, for: .normal)
+        signupButton.isEnabled = true
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
-    @objc func loginButtonTapped() {
-        if let navigationController = self.navigationController {
-            navigationController.popToRootViewController(animated: true)
+    @objc func signupButtonTapped() {
+        guard let email = emailTextField.text, let password = passwordTextField.text else {
+            return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
+            if let error = error {
+                // 회원가입 실패
+                print("Error creating user: \(error.localizedDescription)")
+            } else {
+                // 회원가입 성공
+                print("User created successfully!")
+                if let navigationController = self.navigationController {
+                    navigationController.popToRootViewController(animated: true)
+                }
+            }
         }
     }
 }

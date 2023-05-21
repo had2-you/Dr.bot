@@ -1,6 +1,7 @@
 
 
 import UIKit
+import Firebase
 
 final class LoginViewContoller: UIViewController {
     
@@ -21,7 +22,7 @@ final class LoginViewContoller: UIViewController {
     // "이메일 또는 전화번호" 안내문구
     private var emailInfoLabel: UILabel = {
         let label = UILabel()
-        label.text = "이메일주소 또는 전화번호"
+        label.text = "이메일주소"
         label.font = UIFont.systemFont(ofSize: 18)
         label.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         return label
@@ -272,16 +273,31 @@ final class LoginViewContoller: UIViewController {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
-    }    
+    }
     
     @objc func registerButtonTapped() {
         performSegue(withIdentifier: "signupSegue", sender: self)
     }
     
     @objc func loginButtonTapped() {
-        performSegue(withIdentifier: "chatSegue", sender: self)
+        guard let email = emailTextField.text, let password = passwordTextField.text else {
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            if let error = error {
+                // 로그인 실패 시 에러 처리
+                print("로그인 실패:", error.localizedDescription)
+            } else {
+                // 로그인 성공 시 다음 화면으로 이동하거나 필요한 동작 수행
+                self?.performSegue(withIdentifier: "chatSegue", sender: self)
+            }
+        }
     }
 }
+
+
+
 
 
 

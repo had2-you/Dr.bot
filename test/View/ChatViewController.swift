@@ -3,14 +3,15 @@ import UIKit
 import MessageKit
 import InputBarAccessoryView
 import OpenAISwift
-
+import FirebaseFirestore
+import Firebase
 
 
 class ChatViewController: MessagesViewController {
     
     
     private var messages: [Message] = []
-    private let apiKey = "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"
+    private let apiKey = "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"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
     
     
@@ -89,25 +90,65 @@ extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {}
 
 
 
-let openAI = OpenAISwift(authToken: "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")
+let openAI = OpenAISwift(authToken: "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")
 extension ChatViewController: InputBarAccessoryViewDelegate {
-
+    
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         let message = Message(text: text, sender: currentSender, messageId: UUID().uuidString, date: Date())
         messages.append(message)
         messagesCollectionView.reloadData()
         inputBar.inputTextView.text = ""
-
+        
         // Send message to OpenAI API for processing
-        openAI.sendCompletion(with: text) { result in // Result<OpenAI, OpenAIError>
+        openAI.sendCompletion(with: text) { [weak self] result in
+            guard let self = self else { return }
+            
             switch result {
             case .success(let success):
-                print(success.choices?.first?.text ?? "")
+                let botResponse = success.choices?.first?.text ?? ""
+                self.saveMessageToFirebase(message: message, botResponse: botResponse)
+                print(botResponse)
             case .failure(let failure):
                 print(failure.localizedDescription)
             }
         }
     }
+    
+    // Save message to Firebase Realtime Database
+    func saveMessageToFirebase(message: Message, botResponse: String) {
+        let database = Database.database()
+        let ref = database.reference()
+        
+        let chatData: [String: Any] = [
+            "senderId": message.sender.senderId,
+            "senderName": message.sender.displayName,
+            "messageId": message.messageId,
+            "sentDate": message.sentDate.timeIntervalSince1970,
+            "text": {
+                if case let .text(text) = message.kind {
+                    return text
+                } else {
+                    return ""
+                }
+            }(),
+            "botResponse": botResponse
+        ]
+        
+        ref.child("chats").childByAutoId().setValue(chatData) { (error, _) in
+            if let error = error {
+                print("Error saving message to Firebase: \(error)")
+            } else {
+                print("Message saved to Firebase")
+            }
+        }
+    }
 }
+
+
+
+
+
+
+
 
 
