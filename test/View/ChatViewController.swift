@@ -11,13 +11,13 @@ class ChatViewController: MessagesViewController {
     
     
     private var messages: [Message] = []
-    private let apiKey = "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"
+    private let apiKey = "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"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        
         
         messagesCollectionView.dataSource = self
         messagesCollectionView.delegate = self
@@ -28,8 +28,8 @@ class ChatViewController: MessagesViewController {
         
         // Register MessageCell
         messagesCollectionView.register(CustomMessageCollectionViewCell.self, forCellWithReuseIdentifier: "CustomMessageCell")
-
-
+        
+        
         // Set up messageInputBar
         messageInputBar.inputTextView.placeholder = "질문하실 내용을 입력하세요."
         messageInputBar.sendButton.setTitleColor(.systemBlue, for: .normal)
@@ -48,7 +48,7 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.addGestureRecognizer(tapGesture)
         
     }
-
+    
     @objc private func dismissKeyboard(){
         view.endEditing(true)
     }
@@ -58,8 +58,8 @@ class ChatViewController: MessagesViewController {
 
 extension ChatViewController: MessagesDataSource {
     var currentSender: SenderType {
-         return Sender(senderId: "user_id", displayName: "User")
-     }
+        return Sender(senderId: "user_id", displayName: "User")
+    }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
         return messages[indexPath.section]
@@ -79,37 +79,40 @@ extension ChatViewController: MessagesDataSource {
         }
         return nil
     }
-
-
-
-
+    
+    
+    
+    
 }
 
 // Message Layout 구현부
 extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {}
 
 
+let openAI = OpenAISwift(authToken: "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")
 
-let openAI = OpenAISwift(authToken: "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")
 extension ChatViewController: InputBarAccessoryViewDelegate {
-    
+
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         let message = Message(text: text, sender: currentSender, messageId: UUID().uuidString, date: Date())
         messages.append(message)
         messagesCollectionView.reloadData()
         inputBar.inputTextView.text = ""
-        
-        // Send message to OpenAI API for processing
-        openAI.sendCompletion(with: text) { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let success):
-                let botResponse = success.choices?.first?.text ?? ""
-                self.saveMessageToFirebase(message: message, botResponse: botResponse)
-                print(botResponse)
-            case .failure(let failure):
-                print(failure.localizedDescription)
+
+        async {
+            do {
+                let result = try await openAI.sendChat(with: [ChatMessage(role: .system, content: text)])
+                if let botResponse = result.choices?.first?.message.content {
+                    self.saveMessageToFirebase(message: message, botResponse: botResponse)
+                    print("사용자 : " + text)
+                    print("챗봇 : " + botResponse)
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+
+            DispatchQueue.main.async {
+                self.messagesCollectionView.reloadData()
             }
         }
     }
@@ -118,7 +121,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
     func saveMessageToFirebase(message: Message, botResponse: String) {
         let database = Database.database()
         let ref = database.reference()
-        
+
         let chatData: [String: Any] = [
             "senderId": message.sender.senderId,
             "senderName": message.sender.displayName,
@@ -133,7 +136,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             }(),
             "botResponse": botResponse
         ]
-        
+
         ref.child("chats").childByAutoId().setValue(chatData) { (error, _) in
             if let error = error {
                 print("Error saving message to Firebase: \(error)")
@@ -143,12 +146,4 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         }
     }
 }
-
-
-
-
-
-
-
-
 
