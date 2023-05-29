@@ -21,7 +21,6 @@
 		D217392B2A1A45B200E94970 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = D217392A2A1A45B200E94970 /* FirebaseDatabase */; };
 		D217392D2A1A45B200E94970 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D217392C2A1A45B200E94970 /* FirebaseFirestore */; };
 		D24C26322A161DBC00191437 /* SigupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24C26312A161DBC00191437 /* SigupViewController.swift */; };
-		D24C26342A19251A00191437 /* CustomMessageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24C26332A19251A00191437 /* CustomMessageCollectionViewCell.swift */; };
 		D2DAEBA22A0B879D0048B4C7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2DAEBA12A0B879D0048B4C7 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -37,7 +36,6 @@
 		D21739222A1A3F7700E94970 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		D21739252A1A446400E94970 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D24C26312A161DBC00191437 /* SigupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigupViewController.swift; sourceTree = "<group>"; };
-		D24C26332A19251A00191437 /* CustomMessageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMessageCollectionViewCell.swift; sourceTree = "<group>"; };
 		D2DAEBA12A0B879D0048B4C7 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,7 +90,6 @@
 		D21739202A1A3F3800E94970 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				D24C26332A19251A00191437 /* CustomMessageCollectionViewCell.swift */,
 				D24C26312A161DBC00191437 /* SigupViewController.swift */,
 				D204A2F42A06927000C31B82 /* ChatViewController.swift */,
 				D2DAEBA12A0B879D0048B4C7 /* LoginViewController.swift */,
@@ -194,7 +191,6 @@
 			files = (
 				D21739232A1A3F7700E94970 /* Model.swift in Sources */,
 				D2DAEBA22A0B879D0048B4C7 /* LoginViewController.swift in Sources */,
-				D24C26342A19251A00191437 /* CustomMessageCollectionViewCell.swift in Sources */,
 				D24C26322A161DBC00191437 /* SigupViewController.swift in Sources */,
 				D204A2F52A06927000C31B82 /* ChatViewController.swift in Sources */,
 				D204A2F12A06927000C31B82 /* AppDelegate.swift in Sources */,

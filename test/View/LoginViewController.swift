@@ -227,6 +227,15 @@ final class LoginViewContoller: UIViewController {
     }
     
     
+    func showLoginFailureAlert() {
+        let alert = UIAlertController(title: "", message: "이메일 또는 비밀번호가 일치하지 않습니다", preferredStyle: .alert)
+        let checkAction = UIAlertAction(title: "확인", style: .default) { _ in
+            // 확인 버튼을 눌렀을 때의 동작을 처리
+        }
+        alert.addAction(checkAction)
+        present(alert, animated: true, completion: nil)
+    }
+    
     // MARK: - objc func
     
     
@@ -234,10 +243,10 @@ final class LoginViewContoller: UIViewController {
     @objc func resetButtonTapped() {
         let alert = UIAlertController(title: "비밀번호 바꾸기", message: "비밀번호를 바꾸시겠습니까?", preferredStyle: .alert)
         let success = UIAlertAction(title: "확인", style: .default) { action in
-            print("확인버튼이 눌렸습니다.")
+            
         }
         let cancel = UIAlertAction(title: "취소", style: .cancel) { cancel in
-            print("취소버튼이 눌렸습니다")
+            
         }
         // addSubVeiw 같은 것
         alert.addAction(success)
@@ -246,6 +255,7 @@ final class LoginViewContoller: UIViewController {
         // 다음화면으로 넘어가는 것
         present(alert, animated: true, completion: nil)
     }
+
     
     @objc func passwordSecureModeSetting() {
         passwordTextField.isSecureTextEntry.toggle()
@@ -288,6 +298,7 @@ final class LoginViewContoller: UIViewController {
             if let error = error {
                 // 로그인 실패 시 에러 처리
                 print("로그인 실패:", error.localizedDescription)
+                self?.showLoginFailureAlert()
             } else {
                 // 로그인 성공 시 다음 화면으로 이동하거나 필요한 동작 수행
                 self?.performSegue(withIdentifier: "chatSegue", sender: self)

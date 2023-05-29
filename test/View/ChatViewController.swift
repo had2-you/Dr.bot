@@ -1,4 +1,5 @@
 
+
 import UIKit
 import MessageKit
 import InputBarAccessoryView
@@ -6,30 +7,25 @@ import OpenAISwift
 import FirebaseFirestore
 import Firebase
 
-
 class ChatViewController: MessagesViewController {
     
-    
-    private var messages: [Message] = []
-    private let apiKey = "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"
+    private var messages: [MessageType] = []
+    private let apiKey = "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"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
+    private let openAI = OpenAISwift(authToken: "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")
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        messagesCollectionView.dataSource = self
-        messagesCollectionView.delegate = self
+        messagesCollectionView.messagesDataSource = self
+        messagesCollectionView.messagesLayoutDelegate = self
+        messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
         
         // Initialize messagesCollectionView
         messagesCollectionView.backgroundColor = .white
-        
-        // Register MessageCell
-        messagesCollectionView.register(CustomMessageCollectionViewCell.self, forCellWithReuseIdentifier: "CustomMessageCell")
-        
-        
+
         // Set up messageInputBar
         messageInputBar.inputTextView.placeholder = "질문하실 내용을 입력하세요."
         messageInputBar.sendButton.setTitleColor(.systemBlue, for: .normal)
@@ -46,14 +42,12 @@ class ChatViewController: MessagesViewController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         messagesCollectionView.addGestureRecognizer(tapGesture)
-        
     }
     
     @objc private func dismissKeyboard(){
         view.endEditing(true)
     }
 }
-
 
 
 extension ChatViewController: MessagesDataSource {
@@ -69,59 +63,100 @@ extension ChatViewController: MessagesDataSource {
         return messages.count
     }
     
-    func customCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UICollectionViewCell? {
-        if let customMessage = message as? CustomMessageCollectionViewCell {
-            let cell = messagesCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomMessageCell", for: indexPath) as! CustomMessageCollectionViewCell
-            // 커스텀 메시지 셀의 속성 설정
-            cell.messageLabel.text = customMessage.messageLabel.text
-            // 추가적인 커스터마이징 작업
-            return cell
-        }
+    func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, h:mm a"
+        let dateString = dateFormatter.string(from: message.sentDate)
+        return NSAttributedString(string: dateString, attributes: [.font: UIFont.boldSystemFont(ofSize: 12), .foregroundColor: UIColor.darkGray])
+    }
+    
+    func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
         return nil
     }
     
+    func messageTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        return nil
+    }
+}
+
+extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        let avatar: Avatar
+        
+        if message.sender.senderId == botSender.senderId {
+            let botImage = UIImage(named: "bot_profile")
+            avatar = Avatar(image: botImage)
+            avatarView.backgroundColor = UIColor(hex: "#F2F8FF")
+
+        } else {
+            let userImage = UIImage(named: "user_profile")
+            avatar = Avatar(image: userImage)
+        }
+        
+        avatarView.set(avatar: avatar)
+    }
     
+    func messageStyle(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageStyle {
+        // Check if the message is from the bot
+        if message.sender.senderId == botSender.senderId {
+            // Return the desired bot message style
+            return MessageStyle.bubbleTail(.bottomLeft, .pointedEdge)
+
+        } else {
+            // Return the desired user message style
+            return MessageStyle.bubbleTail(.bottomRight, .pointedEdge)
+                
+        }
+    }
+    
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        // Check if the message is from the bot
+        if message.sender.senderId == botSender.senderId {
+            // Return the desired bot bubble color
+            return UIColor(hex: "#F2F4F5")
+        } else {
+            // Return the desired user bubble color
+            return UIColor(hex: "#0070F0")
+        }
+    }
+
     
     
 }
 
-// Message Layout 구현부
-extension ChatViewController: MessagesDisplayDelegate, MessagesLayoutDelegate {}
-
-
-let openAI = OpenAISwift(authToken: "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")
 
 extension ChatViewController: InputBarAccessoryViewDelegate {
-
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         let message = Message(text: text, sender: currentSender, messageId: UUID().uuidString, date: Date())
         messages.append(message)
-        messagesCollectionView.reloadData()
         inputBar.inputTextView.text = ""
-
+        messagesCollectionView.reloadData()
+        
         async {
             do {
-                let result = try await openAI.sendChat(with: [ChatMessage(role: .system, content: text)])
+                let result = try await self.openAI.sendChat(with: [ChatMessage(role: .system, content: text)])
                 if let botResponse = result.choices?.first?.message.content {
                     self.saveMessageToFirebase(message: message, botResponse: botResponse)
-                    print("사용자 : " + text)
-                    print("챗봇 : " + botResponse)
+                    print("사용자: " + text)
+                    print("챗봇: " + botResponse)
+                    DispatchQueue.main.async {
+                        self.messagesCollectionView.reloadData()
+                        self.messagesCollectionView.scrollToLastItem()
+                    }
                 }
             } catch {
                 print(error.localizedDescription)
             }
-
-            DispatchQueue.main.async {
-                self.messagesCollectionView.reloadData()
-            }
         }
     }
     
-    // Save message to Firebase Realtime Database
+    // Save message to Firestore
     func saveMessageToFirebase(message: Message, botResponse: String) {
-        let database = Database.database()
-        let ref = database.reference()
-
+        let botMessage = Message(text: botResponse, sender: botSender, messageId: UUID().uuidString, date: Date())
+        messages.append(botMessage)
+        
+        let database = Firestore.firestore()
         let chatData: [String: Any] = [
             "senderId": message.sender.senderId,
             "senderName": message.sender.displayName,
@@ -136,14 +171,27 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             }(),
             "botResponse": botResponse
         ]
-
-        ref.child("chats").childByAutoId().setValue(chatData) { (error, _) in
+        
+        database.collection("chats").addDocument(data: chatData) { error in
             if let error = error {
-                print("Error saving message to Firebase: \(error)")
+                print("Error saving message to Firestore: \(error)")
             } else {
-                print("Message saved to Firebase")
+                print("Message saved to Firestore")
             }
         }
     }
 }
 
+extension UIColor {
+    convenience init(hex: String, alpha: CGFloat = 1.0) {
+        let hexString = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var intValue: UInt64 = 0
+        Scanner(string: hexString).scanHexInt64(&intValue)
+
+        let red = CGFloat((intValue & 0xFF0000) >> 16) / 255.0
+        let green = CGFloat((intValue & 0x00FF00) >> 8) / 255.0
+        let blue = CGFloat(intValue & 0x0000FF) / 255.0
+
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+}
