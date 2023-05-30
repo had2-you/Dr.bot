@@ -8,4 +8,4 @@
 - swift를 사용하여 챗봇을 구현해본다
 
 ### usecase diagram
-<img src = "/image/image01.png">
+<img src = "static/images/usecase_diagram.png">
