@@ -9,3 +9,16 @@
 
 ### usecase diagram
 <img src = "static/images/usecase_diagram.png">
+
+
+## 설치 및 사용법
+
+
+## 기능 및 예시
+
+
+## 기여 방법
+
+
+## 라이센스
+
