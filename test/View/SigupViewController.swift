@@ -125,6 +125,7 @@ final class SignupViewController: UIViewController {
     }()
     
     
+    
     // 3개의 각 텍스트필드 및 로그인 버튼의 높이 설정
     private let textViewHeight: CGFloat = 65
     
@@ -191,26 +192,34 @@ final class SignupViewController: UIViewController {
         ])
     }
     
+    let firebaseErrorMessages: [AuthErrorCode.Code: String] = [
+        .emailAlreadyInUse: "해당 이메일은 이미 사용 중입니다.",
+        .invalidEmail: "유효하지 않은 이메일 주소입니다.",
+        .weakPassword: "비밀번호가 너무 짧습니다. 6글자 이상으로 해주세요.",
+    ]
+
+    func showSignUpFailureAlert() {
+        guard let email = emailTextField.text, let password = passwordTextField.text else {
+            return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
+            if let error = error as NSError?,
+               let errorCode = AuthErrorCode.Code(rawValue: error.code),
+               let errorMessage = self.firebaseErrorMessages[errorCode] {
+                // 회원가입 실패
+                let alert = UIAlertController(title: "", message: errorMessage, preferredStyle: .alert)
+                let checkAction = UIAlertAction(title: "확인", style: .default) { _ in
+                    // 확인 버튼을 눌렀을 때의 동작을 처리
+                }
+                alert.addAction(checkAction)
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+
     
     // MARK: - objc func
-    
-    
-    
-    @objc func resetButtonTapped() {
-        let alert = UIAlertController(title: "비밀번호 바꾸기", message: "비밀번호를 바꾸시겠습니까?", preferredStyle: .alert)
-        let success = UIAlertAction(title: "확인", style: .default) { action in
-            print("확인버튼이 눌렸습니다.")
-        }
-        let cancel = UIAlertAction(title: "취소", style: .cancel) { cancel in
-            print("취소버튼이 눌렸습니다")
-        }
-        // addSubVeiw 같은 것
-        alert.addAction(success)
-        alert.addAction(cancel)
-        
-        // 다음화면으로 넘어가는 것
-        present(alert, animated: true, completion: nil)
-    }
     
     @objc func passwordSecureModeSetting() {
         passwordTextField.isSecureTextEntry.toggle()
@@ -240,6 +249,7 @@ final class SignupViewController: UIViewController {
         self.view.endEditing(true)
     }
     
+
     @objc func signupButtonTapped() {
         guard let email = emailTextField.text, let password = passwordTextField.text else {
             return
@@ -248,13 +258,19 @@ final class SignupViewController: UIViewController {
         Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
             if let error = error {
                 // 회원가입 실패
+                self.showSignUpFailureAlert()
                 print("Error creating user: \(error.localizedDescription)")
             } else {
                 // 회원가입 성공
-                print("User created successfully!")
-                if let navigationController = self.navigationController {
-                    navigationController.popToRootViewController(animated: true)
+                let alert = UIAlertController(title: "", message: "회원가입이 완료 되었습니다.", preferredStyle: .alert)
+                let checkAction = UIAlertAction(title: "확인", style: .default) { _ in
+                    // 확인 버튼을 눌렀을 때의 동작을 처리
+                    if let navigationController = self.navigationController {
+                        navigationController.popToRootViewController(animated: true)
+                    }
                 }
+                alert.addAction(checkAction)
+                self.present(alert, animated: true, completion: nil)
             }
         }
     }

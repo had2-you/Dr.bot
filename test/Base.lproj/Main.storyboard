@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Chat View Controller-->
+        <!--Dr.Bot-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController storyboardIdentifier="ChatViewController" id="BYZ-38-t0r" customClass="ChatViewController" customModule="test" customModuleProvider="target" sceneMemberID="viewController">
@@ -18,13 +18,28 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" id="7Me-og-L6r"/>
+                    <navigationItem key="navigationItem" title="Dr.Bot" id="7Me-og-L6r"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1023.6641221374045" y="-2.1126760563380285"/>
         </scene>
-        <!--Signup View Controller-->
+        <!--Password Reset View Controller-->
+        <scene sceneID="RMp-WY-Jd7">
+            <objects>
+                <viewController storyboardIdentifier="PasswordResetViewController" id="fvY-Go-7Lx" customClass="PasswordResetViewController" customModule="test" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="0TE-as-tzx">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="mhB-Pf-eSQ"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="LPX-GA-voq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1897" y="-2"/>
+        </scene>
+        <!--회원가입-->
         <scene sceneID="Gws-cX-Z1O">
             <objects>
                 <viewController storyboardIdentifier="SignupViewController" id="5q4-PY-iPh" customClass="SignupViewController" customModule="test" customModuleProvider="target" sceneMemberID="viewController">
@@ -34,13 +49,13 @@
                         <viewLayoutGuide key="safeArea" id="cWa-ZF-kDq"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" id="sMF-3Y-tAE"/>
+                    <navigationItem key="navigationItem" title="회원가입" id="sMF-3Y-tAE"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uTm-3v-DMQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1024" y="-730"/>
         </scene>
-        <!--Login View Contoller-->
+        <!--로그인-->
         <scene sceneID="AQZ-jl-xw8">
             <objects>
                 <viewController storyboardIdentifier="LoginViewController" id="Neo-lm-Fjx" customClass="LoginViewContoller" customModule="test" customModuleProvider="target" sceneMemberID="viewController">
@@ -50,7 +65,7 @@
                         <viewLayoutGuide key="safeArea" id="7gR-Pr-Hwp"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" id="AU7-JZ-gBp"/>
+                    <navigationItem key="navigationItem" title="로그인" id="AU7-JZ-gBp"/>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="show" identifier="chatSegue" id="i7f-aJ-OIe"/>
                         <segue destination="5q4-PY-iPh" kind="show" identifier="signupSegue" id="jJ2-YX-GlO"/>

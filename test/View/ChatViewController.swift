@@ -10,10 +10,12 @@ import Firebase
 class ChatViewController: MessagesViewController {
     
     private var messages: [MessageType] = []
-    private let apiKey = "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"
+    private let apiKey = "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"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
-    private let openAI = OpenAISwift(authToken: "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")
+    private let openAI = OpenAISwift(authToken: "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")
     
+    private var loadingIndicator: UIActivityIndicatorView!
+    private var isLoading = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +25,8 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
         
+        loadPreviousMessages()
+
         // Initialize messagesCollectionView
         messagesCollectionView.backgroundColor = .white
 
@@ -42,6 +46,16 @@ class ChatViewController: MessagesViewController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         messagesCollectionView.addGestureRecognizer(tapGesture)
+        
+        // Set up loadingIndicator
+        loadingIndicator = UIActivityIndicatorView(style: .large)
+        loadingIndicator.color = .gray
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(loadingIndicator)
+        NSLayoutConstraint.activate([
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     @objc private func dismissKeyboard(){
@@ -120,14 +134,87 @@ extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
             return UIColor(hex: "#0070F0")
         }
     }
+    
+    func loadPreviousMessages() {
+        let database = Firestore.firestore()
+        let query = database.collection("chats").order(by: "sentDate")
+        
+        query.getDocuments { [weak self] (snapshot, error) in
+            guard let self = self, let snapshot = snapshot else {
+                if let error = error {
+                    print("Error loading previous messages: \(error)")
+                }
+                return
+            }
+            
+            self.messages.removeAll() // 기존 메시지 삭제
+            
+            for document in snapshot.documents {
+                let data = document.data()
+                
+                guard let senderId = data["senderId"] as? String,
+                      let senderName = data["senderName"] as? String,
+                      let messageId = data["messageId"] as? String,
+                      let sentDateTimestamp = data["sentDate"] as? TimeInterval,
+                      let text = data["text"] as? String,
+                      let botResponse = data["botResponse"] as? String else {
+                    continue
+                }
+                
+                let sender = Sender(senderId: senderId, displayName: senderName)
+                let sentDate = Date(timeIntervalSince1970: sentDateTimestamp)
+                let message = Message(text: text, sender: sender, messageId: messageId, date: sentDate)
+                let botMessage = Message(text: botResponse, sender: self.botSender, messageId: UUID().uuidString, date: sentDate)
+                
+                self.messages.append(message)
+                self.messages.append(botMessage)
+            }
+            
+            DispatchQueue.main.async {
+                self.messagesCollectionView.reloadData()
+                self.messagesCollectionView.scrollToLastItem()
+            }
+        }
+    }
+
 
     
-    
+    // 동적 말풍선 너비 조절
+//    func messageContainerSize(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGSize {
+//        let maxWidth = messagesCollectionView.bounds.width * 0.7 // 최대 너비 설정
+//        let contentInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8) // 여백 설정
+//
+//        let messageContent: String
+//        switch message.kind {
+//        case .text(let text):
+//            messageContent = text
+//        default:
+//            messageContent = ""
+//        }
+//
+//        let label = MessageLabel()
+//        label.numberOfLines = 0
+//        label.text = messageContent
+//        label.font = UIFont.preferredFont(forTextStyle: .body)
+//        label.lineBreakMode = .byWordWrapping // 단어 래핑 설정 추가
+//
+//
+//        let estimatedSize = label.sizeThatFits(CGSize(width: maxWidth - contentInsets.left - contentInsets.right, height: .greatestFiniteMagnitude))
+//        return CGSize(width: estimatedSize.width + contentInsets.left + contentInsets.right, height: estimatedSize.height + contentInsets.top + contentInsets.bottom)
+//    }
 }
+
 
 
 extension ChatViewController: InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
+        if isLoading {
+            return // 이미 로딩 중인 경우 중복 요청 방지
+        }
+        
+        isLoading = true
+                loadingIndicator.startAnimating()
+        
         let message = Message(text: text, sender: currentSender, messageId: UUID().uuidString, date: Date())
         messages.append(message)
         inputBar.inputTextView.text = ""
@@ -143,10 +230,16 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                     DispatchQueue.main.async {
                         self.messagesCollectionView.reloadData()
                         self.messagesCollectionView.scrollToLastItem()
+                        self.loadingIndicator.stopAnimating()
+                        self.isLoading = false
                     }
                 }
             } catch {
                 print(error.localizedDescription)
+                DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
+                    self.isLoading = false
+                }
             }
         }
     }

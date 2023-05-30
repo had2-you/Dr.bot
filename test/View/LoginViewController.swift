@@ -236,6 +236,7 @@ final class LoginViewContoller: UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    
     // MARK: - objc func
     
     
@@ -243,7 +244,6 @@ final class LoginViewContoller: UIViewController {
     @objc func resetButtonTapped() {
         let alert = UIAlertController(title: "비밀번호 바꾸기", message: "비밀번호를 바꾸시겠습니까?", preferredStyle: .alert)
         let success = UIAlertAction(title: "확인", style: .default) { action in
-            
         }
         let cancel = UIAlertAction(title: "취소", style: .cancel) { cancel in
             
