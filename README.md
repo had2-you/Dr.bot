@@ -82,10 +82,10 @@
 2. 보안 테스트 및 개선  
 
 3. 버그 리포트  
+Issues 메뉴를 사용하거나 이메일을 통해 작성해주세요
+- Issues: https://github.com/castelwoah/OSS/issues/new?assignees=&labels=&projects=&template=custom.md&title=
+- email: 32197256psw@dankook.ac.kr
 
-- 버그 설명: 어떤 경우에 에러가 발생하는지 재현방법등을 알려주세요
-- 환경 정보: 버그가 발생한 운영체제, 브라우저, 버전등의 환경 정보를 알려주세요
-- 에러 로그: 발생한 에러 메시지나 로그를 첨부해주세요
 
 ---
 
