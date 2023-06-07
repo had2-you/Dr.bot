@@ -2,6 +2,10 @@
 ## 소개
 - 의학정보 제공 챗봇 제작 프로젝트
 
+### [제안서](https://github.com/castelwoah/OSS/blob/e5fd10142c652659896efff101857c30cbc462e9/docs/%5B%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4SW%EA%B8%B0%EC%97%AC%5D%20%EC%A0%9C%EC%95%88%EC%84%9C.pdf)
+### [시스템 설계](https://github.com/castelwoah/OSS/blob/e5fd10142c652659896efff101857c30cbc462e9/docs/%5B%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4SW%EA%B8%B0%EC%97%AC%5D%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.pdf)
+### [테스트 계획서](https://github.com/castelwoah/OSS/blob/e5fd10142c652659896efff101857c30cbc462e9/docs/%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EA%B3%84%ED%9A%8D%EC%84%9C.pdf)
+
 ---
 
 ## 설명
