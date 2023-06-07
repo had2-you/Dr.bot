@@ -1,6 +1,7 @@
 # Dr.Bot
 ## 소개
-- 의학정보 제공 챗봇 제작 프로젝트
+- 의학정보 제공 챗봇 제작
+- OpenAI 에서 공개한 API를 토대로 의료 챗봇을 만들어 봄으로써 API 사용과 생성에 대해 이해하고 경험할 수 있는 프로젝트이다.
 
 ### [제안서](https://github.com/castelwoah/OSS/blob/e5fd10142c652659896efff101857c30cbc462e9/docs/%5B%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4SW%EA%B8%B0%EC%97%AC%5D%20%EC%A0%9C%EC%95%88%EC%84%9C.pdf)
 ### [시스템 설계](https://github.com/castelwoah/OSS/blob/e5fd10142c652659896efff101857c30cbc462e9/docs/%5B%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4SW%EA%B8%B0%EC%97%AC%5D%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.pdf)
