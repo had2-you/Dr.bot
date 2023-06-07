@@ -104,7 +104,7 @@
 Issues 메뉴 혹은 이메일을 통해 에러 사항을 공유해주세요
 
     Issues: https://github.com/castelwoah/OSS/issues/new?assignees=&labels=&projects=&template=custom.md&title=  
-    email: <32197256psw@dankook.ac.kr> or <heyjudelee98@gmail.com>
+    email: <32197256psw@gmail.com> or <heyjudelee98@gmail.com>
 
 
 ---
