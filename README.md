@@ -110,7 +110,7 @@ Issues 메뉴 혹은 이메일을 통해 에러 사항을 공유해주세요
 ---
 
 ## 라이센스
-This project is licensed under the terms of the MIT license.
+
 
 ---
 
