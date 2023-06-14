@@ -57,7 +57,6 @@
 
 ```
     private var messages: [MessageType] = []
-    private let apiKey = "<Your API key>"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
     private let openAI = OpenAISwift(authToken: "<Your API key>")
 ```
