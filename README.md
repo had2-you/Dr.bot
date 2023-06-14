@@ -69,26 +69,30 @@
 
 1. 회원가입
 
-| <ul><li>회원가입 페이지</li></ul> | <img src = "static/images/login_page.jpg" width="300" height="600"> |
+| <ul><li>회원가입 페이지</li></ul> | <img src = "static/images/login_page.jpg" width="405" height="720"> |
 | -------------------------------- | ------------------------------------------------------------------- |
 
-| <ul><li>이미 사용중인 이메일로는 가입 불가</li></ul> | <img src = "static/images/signup_unavailable.jpg" width="300" height="600"> |
+| <ul><li>이미 사용중인 이메일로는 가입 불가</li></ul> | <img src = "static/images/signup_unavailable.jpg" width="405" height="720"> |
 | ------------------------------------------------- | --------------------------------------------------------------------------- |
-| <ul><li>비밀번호가 너무 짧을 시 가입 불가</li></ul> | <img src = "static/images/signup_shortpwd.jpg" width="300" height="600"> |
+| <ul><li>비밀번호가 너무 짧을 시 가입 불가</li></ul> | <img src = "static/images/signup_shortpwd.jpg" width="405" height="720"> |
 
 
 2. 로그인
 
-| <ul><li>로그인 페이지</li></ul> | <img src = "static/images/login_page.jpg" width="300" height="600"> |
+| <ul><li>로그인 페이지</li></ul> | <img src = "static/images/login_page.jpg" width="405" height="720"> |
 | ------------------------------ | ------------------------------------------------------------------- |
 
 
 3. 채팅
 
-| <ul><li>채팅 구현</li></ul> | <img src = "static/images/채팅시연.gif" width="300" height="600"> |
+| <ul><li>채팅 구현</li></ul> | <img src = "static/images/채팅시연.gif" width="405" height="720"> |
 | -------------------------- | ---------------------------------------------------------------- |
 |  | <img src = "static/images/database.png" width="600" height=""> |
 
+4. 검색
+
+| <ul><li>채팅창 검색기능</li></ul> | ![Simulator Screen Recording - iPhone 14 Pro - 2023-06-14 at 17 25 19](https://github.com/castelwoah/OSS/assets/72385538/70ad1602-504d-4bea-9581-f220b991306d) |
+| ------------------------------ | ------------------------------------------------------------------- |
 
 ---
 
