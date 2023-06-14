@@ -1,5 +1,3 @@
-
-
 import UIKit
 import MessageKit
 import InputBarAccessoryView
@@ -7,15 +5,32 @@ import OpenAISwift
 import FirebaseFirestore
 import Firebase
 
-class ChatViewController: MessagesViewController {
+class ChatViewController: MessagesViewController, UISearchBarDelegate {
     
     private var messages: [MessageType] = []
-    private let apiKey = "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"
     private let botSender = Sender(senderId: "bot_id", displayName: "Bot")
-    private let openAI = OpenAISwift(authToken: "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")
+    private let openAI = OpenAISwift(authToken: "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")
     
-    private var loadingIndicator: UIActivityIndicatorView!
+    // MARK: - searchBar
+    private let searchBar: UISearchBar = {
+        let bounds = UIScreen.main.bounds
+        let width = bounds.size.width // 화면 너비
+        let searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: width - 28, height: 0))
+        searchBar.placeholder = "이전 대화를 검색하세요"
+        searchBar.showsCancelButton = true
+        
+        return searchBar
+    }()
+    
+    // MARK: - loadingIndicator
     private var isLoading = false
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .gray
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,10 +42,16 @@ class ChatViewController: MessagesViewController {
         
         loadPreviousMessages()
 
-        // Initialize messagesCollectionView
+        // MARK: - loadingIndicator
+
+        view.addSubview(loadingIndicator)
+        loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        
+        // MARK: - messageInputBar
         messagesCollectionView.backgroundColor = .white
 
-        // Set up messageInputBar
+        // 메세지 바 초기화
         messageInputBar.inputTextView.placeholder = "질문하실 내용을 입력하세요."
         messageInputBar.sendButton.setTitleColor(.systemBlue, for: .normal)
         messageInputBar.sendButton.setTitleColor(
@@ -39,7 +60,7 @@ class ChatViewController: MessagesViewController {
         )
         messageInputBar.sendButton.isEnabled = false
         
-        // Remove the padding around the textView
+        // 여백제거
         messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
         messageInputBar.backgroundView.backgroundColor = .white
         messageInputBar.separatorLine.isHidden = true
@@ -47,26 +68,71 @@ class ChatViewController: MessagesViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         messagesCollectionView.addGestureRecognizer(tapGesture)
         
-        // Set up loadingIndicator
-        loadingIndicator = UIActivityIndicatorView(style: .large)
-        loadingIndicator.color = .gray
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(loadingIndicator)
-        NSLayoutConstraint.activate([
-            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
+        // MARK: - searchBar
+
+        // 네비게이션 바 오른쪽에 돋보기 버튼 추가
+        let searchButton = UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: #selector(searchButtonTapped))
+        navigationItem.rightBarButtonItem = searchButton
+        
+        // 써치바 초기화
+        searchBar.delegate = self
+        searchBar.isHidden = true
+        searchBar.showsCancelButton = true
+        
+        // 써치바를 네비게이션 바의 타이틀 뷰로 설정
+        navigationItem.titleView = searchBar
     }
     
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.isHidden = true
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        navigationItem.title = "Dr.Bot" // 안됨
+        loadPreviousMessages()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
+            return
+        }
+        
+        searchBar.resignFirstResponder()
+        
+        // 이전 메시지 중 검색어를 포함하는 메시지 필터링
+        let filteredMessages = messages.filter { message in
+            if case let .text(text) = message.kind {
+                return text.localizedCaseInsensitiveContains(searchText)
+            }
+            return false
+        }
+        
+        messages = filteredMessages
+        
+        messagesCollectionView.reloadData()
+        messagesCollectionView.scrollToLastItem(animated: false)
+    }
+
+
+    
+    // MARK: - objc func
+
     @objc private func dismissKeyboard(){
         view.endEditing(true)
+    }
+    
+    @objc private func searchButtonTapped() {
+        searchBar.isHidden = false
+        searchBar.becomeFirstResponder()
+        navigationItem.titleView = searchBar
     }
 }
 
 
+// MARK: - 확장
+
 extension ChatViewController: MessagesDataSource {
     var currentSender: SenderType {
-        return Sender(senderId: "user_id", displayName: "User")
+        return Sender(senderId: Auth.auth().currentUser?.uid ?? "", displayName: "User")
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
@@ -95,6 +161,29 @@ extension ChatViewController: MessagesDataSource {
 }
 
 extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
+    
+    func messageContainerSize(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGSize {
+        let maxWidth = messagesCollectionView.bounds.width // 최대 가로 길이 설정
+        let maxHeight: CGFloat = 200 // 최대 세로 길이 설정
+        let contentInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        
+        // 메시지 내용에 따라서 최대 길이 조정
+        if case let .text(text) = message.kind {
+            let messageLabel = UILabel()
+            messageLabel.text = text
+            messageLabel.numberOfLines = 0
+            messageLabel.lineBreakMode = .byWordWrapping
+            messageLabel.font = UIFont.systemFont(ofSize: 17)
+            
+            let messageContainerWidth = maxWidth - contentInsets.left - contentInsets.right
+            let messageSize = messageLabel.sizeThatFits(CGSize(width: messageContainerWidth, height: .greatestFiniteMagnitude))
+            
+            return CGSize(width: min(messageSize.width, messageContainerWidth), height: min(messageSize.height, maxHeight))
+        }        
+        return CGSize(width: 0, height: 0)
+        
+    }
+    
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
         let avatar: Avatar
         
@@ -136,13 +225,19 @@ extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
     }
     
     func loadPreviousMessages() {
+        guard let currentUser = Auth.auth().currentUser else {
+            return
+        }
+        
         let database = Firestore.firestore()
-        let query = database.collection("chats").order(by: "sentDate")
+        let query = database.collection("chats")
+            .whereField("senderId", isEqualTo: currentUser.uid)
+            .order(by: "sentDate")
         
         query.getDocuments { [weak self] (snapshot, error) in
             guard let self = self, let snapshot = snapshot else {
                 if let error = error {
-                    print("Error loading previous messages: \(error)")
+                    print("Error messages: \(error)")
                 }
                 return
             }
@@ -161,7 +256,13 @@ extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
                     continue
                 }
                 
-                let sender = Sender(senderId: senderId, displayName: senderName)
+                let sender: Sender
+                if senderId == currentUser.uid {
+                    sender = Sender(senderId: senderId, displayName: "User")
+                } else {
+                    sender = Sender(senderId: senderId, displayName: "Bot")
+                }
+                
                 let sentDate = Date(timeIntervalSince1970: sentDateTimestamp)
                 let message = Message(text: text, sender: sender, messageId: messageId, date: sentDate)
                 let botMessage = Message(text: botResponse, sender: self.botSender, messageId: UUID().uuidString, date: sentDate)
@@ -198,7 +299,6 @@ extension ChatViewController: MessagesLayoutDelegate, MessagesDisplayDelegate {
 //        label.font = UIFont.preferredFont(forTextStyle: .body)
 //        label.lineBreakMode = .byWordWrapping // 단어 래핑 설정 추가
 //
-//
 //        let estimatedSize = label.sizeThatFits(CGSize(width: maxWidth - contentInsets.left - contentInsets.right, height: .greatestFiniteMagnitude))
 //        return CGSize(width: estimatedSize.width + contentInsets.left + contentInsets.right, height: estimatedSize.height + contentInsets.top + contentInsets.bottom)
 //    }
@@ -213,7 +313,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         }
         
         isLoading = true
-                loadingIndicator.startAnimating()
+        loadingIndicator.startAnimating()
         
         let message = Message(text: text, sender: currentSender, messageId: UUID().uuidString, date: Date())
         messages.append(message)
@@ -274,6 +374,8 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         }
     }
 }
+
+
 
 extension UIColor {
     convenience init(hex: String, alpha: CGFloat = 1.0) {

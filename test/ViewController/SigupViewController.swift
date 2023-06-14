@@ -197,7 +197,7 @@ final class SignupViewController: UIViewController {
         .invalidEmail: "유효하지 않은 이메일 주소입니다.",
         .weakPassword: "비밀번호가 너무 짧습니다. 6글자 이상으로 해주세요.",
     ]
-
+    
     func showSignUpFailureAlert() {
         guard let email = emailTextField.text, let password = passwordTextField.text else {
             return
@@ -217,7 +217,7 @@ final class SignupViewController: UIViewController {
             }
         }
     }
-
+    
     
     // MARK: - objc func
     
@@ -249,7 +249,7 @@ final class SignupViewController: UIViewController {
         self.view.endEditing(true)
     }
     
-
+    
     @objc func signupButtonTapped() {
         guard let email = emailTextField.text, let password = passwordTextField.text else {
             return
@@ -262,7 +262,18 @@ final class SignupViewController: UIViewController {
                 print("Error creating user: \(error.localizedDescription)")
             } else {
                 // 회원가입 성공
-                let alert = UIAlertController(title: "", message: "회원가입이 완료 되었습니다.", preferredStyle: .alert)
+                guard let uid = authResult?.user.uid else {
+                    // uid를 가져올 수 없는 경우
+                    if let error = error {
+                        print("Error getting UID: \(error)")
+                    }
+                    return
+                }
+                
+                _ = Sender(senderId: uid, displayName: "")
+                
+                
+                let alert = UIAlertController(title: "", message: "회원가입이 완료되었습니다.", preferredStyle: .alert)
                 let checkAction = UIAlertAction(title: "확인", style: .default) { _ in
                     // 확인 버튼을 눌렀을 때의 동작을 처리
                     if let navigationController = self.navigationController {
@@ -282,8 +293,7 @@ final class SignupViewController: UIViewController {
 
 
 // MARK: - 확장
-// 프로토콜 채택 - 선택적 요구사항(didBegin, didEditing, ...)
-// 시점 캐치 후 애니메이션 코드 구현
+
 extension SignupViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField == emailTextField {

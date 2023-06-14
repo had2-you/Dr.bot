@@ -7,6 +7,11 @@ import OpenAISwift
 struct Sender: SenderType {
     var senderId: String
     var displayName: String
+    
+    init(senderId: String, displayName: String) {
+        self.senderId = senderId
+        self.displayName = displayName
+    }
 }
 
 struct Message: MessageType {
@@ -25,4 +30,6 @@ struct Message: MessageType {
     init(text: String, sender: SenderType, messageId: String, date: Date) {
         self.init(sender: sender, messageId: messageId, sentDate: date, kind: .text(text))
     }
+    
+    
 }

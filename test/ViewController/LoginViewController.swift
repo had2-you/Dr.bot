@@ -316,8 +316,7 @@ final class LoginViewContoller: UIViewController {
 
 
 // MARK: - 확장
-// 프로토콜 채택 - 선택적 요구사항(didBegin, didEditing, ...)
-// 시점 캐치 후 애니메이션 코드 구현
+
 extension LoginViewContoller: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField == emailTextField {
