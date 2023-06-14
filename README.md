@@ -69,7 +69,7 @@
 
 1. 회원가입
 
-| <ul><li>회원가입 페이지</li></ul> | <img src = "static/images/login_page.jpg"> |
+| <ul><li>회원가입 페이지</li></ul> | <img src = "static/images/login_page.jpg" width="600" height="276.9230769230769"> |
 | -------------------------------- | ------------------------------------------------------------------- |
 
 | <ul><li>이미 사용중인 이메일로는 가입 불가</li></ul> | <img src = "static/images/signup_unavailable.jpg"> |
